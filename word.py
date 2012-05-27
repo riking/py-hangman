@@ -2,12 +2,17 @@
 
 class Word:
     def __init__(self, answer):
+        self.gameOver = False
+        if type(answer)==type(self):
+            self.answer = answer.answer
+            self.guessed = answer.guessed
+            return
         self.answer = answer.upper()
         # array of bools, represent if each letter is visible
         # init to false, except auto-mark spaces as true
         self.guessed = [answer[i]==' ' for i in range(len(answer))]
-        self.gameOver = False
 
+    
 
     # @return: true if letter was found
     def guess(self,letter):
