@@ -4,7 +4,8 @@ class Word:
     def __init__(self, answer):
         self.answer = answer.upper()
         # array of bools, represent if each letter is visible
-        self.guessed = [False for i in range(len(answer))]
+        # init to false, except auto-mark spaces as true
+        self.guessed = [answer[i]==' ' for i in range(len(answer))]
         self.gameOver = False
 
 

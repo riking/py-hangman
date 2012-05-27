@@ -31,24 +31,18 @@ def getDrawing(strikes):
 
 
 class LetterSet:
-    def stringInSet(self,string): return stringInSet(string)
-    def letterInSet(self,letter): return letterInSet(letter)
-    def stringInSet(string): return NotImplemented
-    def letterInSet(letter): return NotImplemented
-    def __init__(self): pass
-    alpha = LetterSetAlpha()
-    alphanum = 
+    def __init__(self,regex,siz):
+        self.size=siz
+        self.reg = regex.upper() #force uppercase
 
-class LetterSetAlpha(LetterSet):
-    reg=r'[A-Z]'
-    size=26
-    def stringInSet(string):
-        return re.match(r'^%s+$'%reg,string):
+    def stringInSet(self,string):
+        # start of string, group, plus, end of string
+        return re.match(r'^%s+$'% self.reg,string)
 
-    def letterInSet(letter):
-        return re.match(reg,letter)
+    def letterInSet(self,letter):
+        return re.match(self.reg,letter)
             
-
+LetterSet.alpha = LetterSet(r'[A-Z ]',26)
 
 class HangmanGame:
     def __init__(self):
@@ -59,6 +53,8 @@ class HangmanGame:
 
     def play(self):
         print('\n')
+
+
         print("Please pass the computer to the word-maker.")
         time.sleep(0.5)
         w = getpass.getpass("Word: ")
@@ -67,8 +63,11 @@ class HangmanGame:
         if not LetterSet.alpha.stringInSet(self.word.answer):
             print("Please only use alphanumeric words")
             return None
+        self.usedletters = [False for i in range(LetterSet.alpha.size)]
+        
         print("Pass the computer to the players")
         time.sleep(1)
+
         while(1):
             # Print the gameboard
             print("\n   %s/8   "%self.strikes+''.join(['-' if self.usedletters[i] else chr(i+65) for i in range(26)]))
@@ -119,7 +118,11 @@ class HangmanGame:
 
     def guessWord(self):
         sys.stdout.write('\n  WORD GUESS')
-        print("Capitals DO NOT matter. Whitespace DOES NOT matter. 
+        pos=0
+        while(1):
+            sys.stdout.write(str(self.word))
+            sys.stdout.write('\b'*( len(self.word) - pos)*2-1)
+            wait(1)
 
 
     def playAgain(self,result):
