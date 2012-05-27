@@ -187,7 +187,7 @@ class HangmanGame:
         else:
             sys.stdout.write('\n')
         sys.stdout.flush()
-        i = raw_input("Want to play again? (Y/n) ")
+        i = input("Want to play again? (Y/n) ")
         # first letter of 'no' and 'quit'
         if i[0] in 'NnQq':
             return False
