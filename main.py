@@ -30,10 +30,29 @@ def getDrawing(strikes):
      __|__"""
 
 
+class LetterSet:
+    def stringInSet(self,string): return stringInSet(string)
+    def letterInSet(self,letter): return letterInSet(letter)
+    def stringInSet(string): return NotImplemented
+    def letterInSet(letter): return NotImplemented
+    def __init__(self): pass
+    alpha = LetterSetAlpha()
+    alphanum = 
+
+class LetterSetAlpha(LetterSet):
+    reg=r'[A-Z]'
+    size=26
+    def stringInSet(string):
+        return re.match(r'^%s+$'%reg,string):
+
+    def letterInSet(letter):
+        return re.match(reg,letter)
+            
+
 
 class HangmanGame:
     def __init__(self):
-        self.usedletters = [False for i in range(26)]
+        #self.usedletters = [False for i in range(26)]
         self.word = None
         self.strikes = 0
 
@@ -44,6 +63,10 @@ class HangmanGame:
         time.sleep(0.5)
         w = getpass.getpass("Word: ")
         self.word = word.Word(w)
+        # Detect type of word
+        if not LetterSet.alpha.stringInSet(self.word.answer):
+            print("Please only use alphanumeric words")
+            return None
         print("Pass the computer to the players")
         time.sleep(1)
         while(1):
@@ -94,8 +117,9 @@ class HangmanGame:
         #end of play()
 
 
-    def guessWord():
-        pass
+    def guessWord(self):
+        sys.stdout.write('\n  WORD GUESS')
+        print("Capitals DO NOT matter. Whitespace DOES NOT matter. 
 
 
     def playAgain(self,result):
