@@ -5,9 +5,13 @@ import sys, time
 
 # libraries
 import getch
+import colorama
+from colorama import Fore, Back, Style
 
 # program
 import word
+
+colorama.init()
 
 def getDrawing(strikes):
     armarray=["   ","   "," | "," | ","\\| ","\\|/"]
@@ -57,7 +61,7 @@ class HangmanGame:
         print('\n')
 
 
-        print("Please pass the computer to the word-maker.")
+        print(Style.BRIGHT+Fore.GREEN+"Please pass the computer to the word-maker."+Style.RESET_ALL)
         time.sleep(0.5)
         w = getpass.getpass("Word: ")
         self.word = word.Word(w)
@@ -67,7 +71,7 @@ class HangmanGame:
             return None
         self.usedletters = [False for i in range(LetterSet.alpha.size)]
         
-        print("Pass the computer to the players")
+        print(Style.BRIGHT+Fore.GREEN+"Pass the computer to the players"+Fore.RESET)
         time.sleep(1)
 
         while(1):
@@ -78,16 +82,17 @@ class HangmanGame:
                 return False
 
             # Print the gameboard
-            print("\n   %s/8   "%self.strikes+''.join(['-' if self.usedletters[i] else chr(i+65) for i in range(26)]))
+            print("\n"+"   %s/8   "%self.strikes+Fore.RED+''.join(['-' if self.usedletters[i] else chr(i+65) for i in range(26)]) + Fore.YELLOW)
+
             lines=getDrawing(self.strikes).split('\n')
-            lines[3] += '    '+str(self.word)
+            lines[3] += '    '+Fore.MAGENTA+str(self.word)+Fore.YELLOW
             print('\n'.join(lines))
 
             time.sleep(0.5)
             # input
             a=None
             while(1):
-                sys.stdout.write("Choose a letter, * to guess, or & to quit: ")
+                sys.stdout.write(Fore.BLUE+"Choose a letter, * to guess, or & to quit: ")
                 sys.stdout.flush()
                 a=getch.getch().upper()
                 if re.match(r'[\w]',a):
@@ -109,13 +114,14 @@ class HangmanGame:
                 print("Not a valid letter")
             # end input loop
             if a!=None:
+                sys.stdout.write('\n')
                 ind = ord(a)-65
                 self.usedletters[ind]=True
                 result = self.word.guess(a)
                 if(result):
-                    print("\nYou got one!")
+                    print(Fore.WHITE+Back.GREEN+"You got one!"+Style.RESET_ALL+Style.BRIGHT)
                 else:
-                    print("\nNope!")
+                    print(Fore.BLACK+Back.RED+Style.DIM+"Nope!"+Style.RESET_ALL+Style.BRIGHT)
                     self.strikes += 1
             # gameloop
         #end of play()
@@ -183,11 +189,17 @@ class HangmanGame:
 
     def playAgain(self,result):
         if result != None:
-            print("\nGame over! Looks like you "+('won' if result else 'lost')+"!")
+            print("\nGame over!")
+            print("The word was: "+Fore.RED+self.word.answer)
+            if result:
+                print(Fore.CYAN+"Great job! You won!")
+            else:
+                print(Fore.MAGENTA+"Seems like that was a pretty good word!")
         else:
-            sys.stdout.write('\n')
+            print(Style.DIM+Fore.CYAN+Back.YELLOW+"Goodbye!")
+            raise SystemExit
         sys.stdout.flush()
-        i = input("Want to play again? (Y/n) ")
+        i = input(Back.WHITE+Fore.BLACK+Style.DIM+"Want to play again? ("+Fore.GREEN+"Y"+Fore.BLACK+"/"+Fore.RED+"n"+Fore.BLACK+")"+Style.RESET_ALL+' ')
         # first letter of 'no' and 'quit'
         if i[0] in 'NnQq':
             return False
