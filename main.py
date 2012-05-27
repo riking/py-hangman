@@ -97,16 +97,18 @@ class HangmanGame:
                         continue
                     else:
                         sys.stdout.write(a) # echo the letter
-                        #sys.stdout.flush()
+                        #sys.stdout.flush() unnecessary, will be flushed anyway soon enough
                         break
                 elif a=='&': # Quit
-                    return None
+                    return None #exits play() method
                 elif a=='*':
-                    self.guessWord()
                     a=None
+                    if self.guessWord():
+                        break # will loop back to the gameover check
                 elif a==chr(3):
                     raise KeyboardInterrupt
                 print("Not a valid letter")
+            # end input loop
             if a!=None:
                 ind = ord(a)-65
                 self.usedletters[ind]=True
@@ -174,6 +176,10 @@ class HangmanGame:
                         time.sleep(.1)
                         sys.stdout.write('.')
                         sys.stdout.flush()
+                    return True
+            else:
+                print(ord(c))
+        #end guess input loop
 
 
     def playAgain(self,result):
