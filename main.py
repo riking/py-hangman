@@ -58,6 +58,7 @@ class HangmanGame:
 
 
     def play(self):
+        
         print('\n')
 
 
@@ -206,8 +207,8 @@ class HangmanGame:
         return True
 
 if __name__=="__main__":
-    g=HangmanGame()
+    g = HangmanGame()
     while(g.playAgain(g.play())):
-        pass
+        g = HangmanGame()
     raise SystemExit
 
