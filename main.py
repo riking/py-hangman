@@ -71,18 +71,17 @@ class HangmanGame:
         time.sleep(1)
 
         while(1):
-            # Print the gameboard
-            print("\n   %s/8   "%self.strikes+''.join(['-' if self.usedletters[i] else chr(i+65) for i in range(26)]))
-            lines=getDrawing(self.strikes).split('\n')
-            lines[3] += '    '+str(self.word)
-            print('\n'.join(lines))
-
-            time.sleep(0.2)
             # Game over checks
             if self.word.isWordGuessed():
                 return True
             elif self.strikes == 8:
                 return False
+
+            # Print the gameboard
+            print("\n   %s/8   "%self.strikes+''.join(['-' if self.usedletters[i] else chr(i+65) for i in range(26)]))
+            lines=getDrawing(self.strikes).split('\n')
+            lines[3] += '    '+str(self.word)
+            print('\n'.join(lines))
 
             time.sleep(0.5)
             # input
