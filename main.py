@@ -30,7 +30,7 @@ def getDrawing(strikes):
      __|__"""
 
 
-class LetterSet:
+class LetterSet: #TODO: Full support
     def __init__(self,regex,siz):
         self.size=siz
         self.reg = regex.upper() #force uppercase
@@ -47,6 +47,7 @@ LetterSet.alpha = LetterSet(r'[A-Z ]',26)
 class HangmanGame:
     def __init__(self):
         #self.usedletters = [False for i in range(26)]
+        self.set = LetterSet.alpha
         self.word = None
         self.strikes = 0
 
@@ -60,8 +61,8 @@ class HangmanGame:
         w = getpass.getpass("Word: ")
         self.word = word.Word(w)
         # Detect type of word
-        if not LetterSet.alpha.stringInSet(self.word.answer):
-            print("Please only use alphanumeric words")
+        if not self.set.stringInSet(self.word.answer):
+            print("\n\nPlease only use alphanumeric words")
             return None
         self.usedletters = [False for i in range(LetterSet.alpha.size)]
         
@@ -117,17 +118,62 @@ class HangmanGame:
 
 
     def guessWord(self):
-        sys.stdout.write('\n  WORD GUESS')
+        print('\n  WORD GUESS   Ctrl+C to abort   Ctrl-J to finish')
         pos=0
+        def advanceCursor():
+            if not pos>=len(self.word)-1:
+                pos += 1
+                #skip spaces
+                while not pos>=len(self.word)-1 and (self.word.answer[pos]==' '):
+                    pos += 1
+
+        def backtrackCursor():
+            if not pos==0:
+                pos -= 1
+                while not pos==0 and self.word.answer[pos]==' ':
+                    pos -= 1
+
+        guess = word.Word('')
+        guess.answer = list(self.word.answer)
+        guess.guessed = self.word.guessed
         while(1):
-            sys.stdout.write(str(self.word))
-            sys.stdout.write('\b'*( len(self.word) - pos)*2-1)
-            wait(1)
+            sys.stdout.write('\r'+str(guess)+'\r')
+            sys.stdout.write(word.Word.__str__(guess)[:pos*2]) #move cursor
+            sys.stdout.flush()
+            c=getch.getch()
+            if ord(c)==27: # Arrow keys
+                if ord(getch.getch())==91:
+                    c=getch.getch()
+                    if c=='C': #right arrow
+                        advanceCursor()
+                    elif c=='D': #left arrow
+                        backtrackCursor()
+            elif ord(c)==3 or c=='&': # Ctrl - C
+                print('\nWord guess aborted')
+                return False
+            elif ord(c)==8 or c==' ': # Backspace, or Ctrl - H
+                guess.guessed[pos] = False
+            elif self.set.letterInSet(c.upper()):
+                guess.answer[pos] = c
+                guess.guessed[pos] = True
+                advanceCursor()
+            elif c=='\n':
+                for i in guess.guessed:
+                    if not i:
+                        break
+                else: #not broken
+                    sys.stdout.write('\nPlease wait, checking your guess..')
+                    self.word.longGuess(str(guess.answer))
+                    for i in range(len(self.word)):
+                        time.sleep(.1)
+                        sys.stdout.write('.')
 
 
     def playAgain(self,result):
         if result != None:
-            print("Game over! Looks like you "+('won' if result else 'lost')+"!")
+            print("\nGame over! Looks like you "+('won' if result else 'lost')+"!")
+        else:
+            sys.stdout.write('\n')
         i = raw_input("Want to play again? (Y/n) ")
         # first letter of 'no' and 'quit'
         if i[0] in 'NnQq':

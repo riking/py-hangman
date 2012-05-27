@@ -36,7 +36,7 @@ class Word:
 
 
     def longGuess(self,g):
-        r = g.upper() == self.answer
+        r = (g.upper() == self.answer)
         if r:
             self.gameover = True
         return r
