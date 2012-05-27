@@ -1,3 +1,4 @@
+#!/usr/bin/python3.2
 # stdlib
 import getpass, re
 import sys, time
@@ -88,6 +89,7 @@ class HangmanGame:
             a=None
             while(1):
                 sys.stdout.write("Choose a letter, * to guess, or & to quit: ")
+                sys.stdout.flush()
                 a=getch.getch().upper()
                 if re.match(r'[\w]',a):
                     if self.usedletters[ord(a)-65]:
@@ -95,6 +97,7 @@ class HangmanGame:
                         continue
                     else:
                         sys.stdout.write(a) # echo the letter
+                        #sys.stdout.flush()
                         break
                 elif a=='&': # Quit
                     return None
@@ -121,6 +124,7 @@ class HangmanGame:
         print('\n  WORD GUESS   Ctrl+C to abort   Ctrl-J to finish')
         pos=0
         def advanceCursor():
+            nonlocal pos
             if not pos>=len(self.word)-1:
                 pos += 1
                 #skip spaces
@@ -128,6 +132,7 @@ class HangmanGame:
                     pos += 1
 
         def backtrackCursor():
+            nonlocal pos
             if not pos==0:
                 pos -= 1
                 while not pos==0 and self.word.answer[pos]==' ':
@@ -163,10 +168,12 @@ class HangmanGame:
                         break
                 else: #not broken
                     sys.stdout.write('\nPlease wait, checking your guess..')
+                    sys.stdout.flush()
                     self.word.longGuess(str(guess.answer))
                     for i in range(len(self.word)):
                         time.sleep(.1)
                         sys.stdout.write('.')
+                        sys.stdout.flush()
 
 
     def playAgain(self,result):
@@ -174,6 +181,7 @@ class HangmanGame:
             print("\nGame over! Looks like you "+('won' if result else 'lost')+"!")
         else:
             sys.stdout.write('\n')
+        sys.stdout.flush()
         i = raw_input("Want to play again? (Y/n) ")
         # first letter of 'no' and 'quit'
         if i[0] in 'NnQq':
