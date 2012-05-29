@@ -13,6 +13,12 @@ import word
 
 colorama.init()
 
+WIN = 1
+LOSE = 2
+CANCEL = 3
+QUIT = 4
+
+
 def getDrawing(strikes):
     armarray=["   ","   "," | "," | ","\\| ","\\|/"]
     legarray=["   ","/  ","/ \\","/ \\"]
@@ -68,8 +74,8 @@ class HangmanGame:
         self.word = word.Word(w)
         # Detect type of word
         if not self.set.stringInSet(self.word.answer):
-            print("\n\nPlease only use alphanumeric words")
-            return None
+            print("\n\nPlease only use alphabetical words")
+            return CANCEL
         self.usedletters = [False for i in range(LetterSet.alpha.size)]
         
         print(Style.BRIGHT+Fore.GREEN+"Pass the computer to the players"+Fore.RESET)
@@ -78,9 +84,11 @@ class HangmanGame:
         while(1):
             # Game over checks
             if self.word.isWordGuessed():
-                return True
+                print(Fore.WHITE+Back.GREEN+"You win!"+Style.RESET_ALL+Style.BRIGHT)
+                return WIN
             elif self.strikes == 8:
-                return False
+                print(Fore.BLACK+Back.RED+Style.DIM+"The platform falls out from underneath you and you die."+Style.RESET_ALL+Style.BRIGHT)
+                return LOSE
 
             # Print the gameboard
             print("\n"+"   %s/8   "%self.strikes+Fore.RED+''.join(['-' if self.usedletters[i] else chr(i+65) for i in range(26)]) + Fore.YELLOW)
@@ -93,9 +101,13 @@ class HangmanGame:
             # input
             a=None
             while(1):
-                sys.stdout.write(Fore.BLUE+"Choose a letter, * to guess, or & to quit: ")
+                sys.stdout.write(Style.BRIGHT+Fore.CYAN+"Choose a letter, * to guess, or & to quit: ")
                 sys.stdout.flush()
-                a=getch.getch().decode("UTF-8").upper()
+                try:
+                    a=getch.getch().decode("UTF-8").upper()
+                except TypeError as e:
+                    print(e)
+                    return
                 if re.match(r'[\w]',a):
                     if self.usedletters[ord(a)-65]:
                         print("You already used that!")
@@ -105,11 +117,11 @@ class HangmanGame:
                         #sys.stdout.flush() unnecessary, will be flushed anyway soon enough
                         break
                 elif a=='&': # Quit
-                    return None #exits play() method
+                    return QUIT #exits play() method
                 elif a=='*':
-                    a=None
-                    if self.guessWord():
-                        break # will loop back to the gameover check
+                    self.guessWord()
+                    a = None # so that it doesn't print Nope
+                    break # will loop back to the gameover check
                 elif a==chr(3):
                     raise KeyboardInterrupt
                 print("Not a valid letter")
@@ -129,7 +141,7 @@ class HangmanGame:
 
 
     def guessWord(self):
-        print('\n  WORD GUESS   Ctrl+C to abort   Ctrl-J to finish')
+        print('\nWORD GUESS   \nPress Ctrl+C to abort   Press ENTER when done')
         pos=0
         def advanceCursor():
             nonlocal pos
@@ -153,23 +165,29 @@ class HangmanGame:
             sys.stdout.write('\r'+str(guess)+'\r')
             sys.stdout.write(word.Word.__str__(guess)[:pos*2]) #move cursor
             sys.stdout.flush()
-            c=getch.getch().decode("UTF-8")
-            if ord(c)==27: # Arrow keys
+            try:
+                c=getch.getch()
+            except KeyboardInterrupt:
+                print('\nWord guess aborted')
+                return CANCEL
+            if ord(c)==27: # Arrow keys: Unix
                 if ord(getch.getch())==91:
                     c=getch.getch()
                     if c=='C': #right arrow
                         advanceCursor()
                     elif c=='D': #left arrow
                         backtrackCursor()
+            elif ord(c)==224: # Arrow keys: Windows
+                c=getch.getch() #75 left 77 right
+                if ord(c)==75:
+                    backtrackCursor()
+                elif ord(c)==77:
+                    advanceCursor()
             elif ord(c)==3 or c=='&': # Ctrl - C
                 print('\nWord guess aborted')
-                return False
+                return CANCEL
             elif ord(c)==8 or c==' ': # Backspace, or Ctrl - H
                 guess.guessed[pos] = False
-            elif self.set.letterInSet(c.upper()):
-                guess.answer[pos] = c
-                guess.guessed[pos] = True
-                advanceCursor()
             elif ord(c)==13 or ord(c)==10 or c=='\n': # enter, i think
                 for i in guess.guessed:
                     if not i:
@@ -182,25 +200,35 @@ class HangmanGame:
                         time.sleep(.1)
                         sys.stdout.write('.')
                         sys.stdout.flush()
-                    return True
+                    return QUIT
             else:
-                print(ord(c))
+                c=c.decode("utf-8").upper()
+                if self.set.letterInSet(c):
+                    guess.answer[pos] = c
+                    guess.guessed[pos] = True
+                    advanceCursor()
         #end guess input loop
 
 
     def playAgain(self,result):
-        if result != None:
-            print("\nGame over!")
+        if result == WIN:
+            print(Style.BRIGHT+"\nGame over!")
             print("The word was: "+Fore.RED+self.word.answer)
-            if result:
-                print(Fore.CYAN+"Great job! You won!")
-            else:
-                print(Fore.MAGENTA+"Seems like that was a pretty good word!")
-        else:
-            print(Style.RESET_ALL+"Goodbye!")
+            print(Fore.CYAN+"Great job! You won!")
+        elif result==LOSE:
+            print(Style.BRIGHT+"\nGame over!")
+            print("The word was: "+Fore.RED+self.word.answer)
+            print(Fore.MAGENTA+"Seems like that was a pretty good word!")
+        elif result==QUIT:
+            print(Style.RESET_ALL+"\nGoodbye!")
             raise SystemExit
+        elif result==CANCEL:
+            print("Game cancelled.")
+        else:
+            print("Unknown exit condition! This is a bug!")
+        sys.stdout.write(Style.RESET_ALL+Back.WHITE+Fore.BLACK+"Want to play again? ("+Fore.GREEN+"Y"+Fore.BLACK+"/"+Fore.RED+"n"+Fore.BLACK+")"+Style.RESET_ALL+' ')
         sys.stdout.flush()
-        i = input(Style.RESET_ALL+"Want to play again? ("+Fore.GREEN+"Y"+Fore.BLACK+"/"+Fore.RED+"n"+Fore.BLACK+")"+Style.RESET_ALL+' ')
+        i = input()
         # first letter of 'no' and 'quit'
         if i[0] in 'NnQq':
             return False
