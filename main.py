@@ -95,7 +95,7 @@ class HangmanGame:
             while(1):
                 sys.stdout.write(Fore.BLUE+"Choose a letter, * to guess, or & to quit: ")
                 sys.stdout.flush()
-                a=getch.getch().upper()
+                a=getch.getch().decode("UTF-8").upper()
                 if re.match(r'[\w]',a):
                     if self.usedletters[ord(a)-65]:
                         print("You already used that!")
@@ -153,7 +153,7 @@ class HangmanGame:
             sys.stdout.write('\r'+str(guess)+'\r')
             sys.stdout.write(word.Word.__str__(guess)[:pos*2]) #move cursor
             sys.stdout.flush()
-            c=getch.getch()
+            c=getch.getch().decode("UTF-8")
             if ord(c)==27: # Arrow keys
                 if ord(getch.getch())==91:
                     c=getch.getch()
@@ -170,7 +170,7 @@ class HangmanGame:
                 guess.answer[pos] = c
                 guess.guessed[pos] = True
                 advanceCursor()
-            elif c=='\n':
+            elif ord(c)==13 or ord(c)==10 or c=='\n': # enter, i think
                 for i in guess.guessed:
                     if not i:
                         break
@@ -197,10 +197,10 @@ class HangmanGame:
             else:
                 print(Fore.MAGENTA+"Seems like that was a pretty good word!")
         else:
-            print(Style.DIM+Fore.CYAN+Back.YELLOW+"Goodbye!")
+            print(Style.RESET_ALL+"Goodbye!")
             raise SystemExit
         sys.stdout.flush()
-        i = input(Back.WHITE+Fore.BLACK+Style.DIM+"Want to play again? ("+Fore.GREEN+"Y"+Fore.BLACK+"/"+Fore.RED+"n"+Fore.BLACK+")"+Style.RESET_ALL+' ')
+        i = input(Style.RESET_ALL+"Want to play again? ("+Fore.GREEN+"Y"+Fore.BLACK+"/"+Fore.RED+"n"+Fore.BLACK+")"+Style.RESET_ALL+' ')
         # first letter of 'no' and 'quit'
         if i[0] in 'NnQq':
             return False
