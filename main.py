@@ -103,11 +103,13 @@ class HangmanGame:
             while(1):
                 sys.stdout.write(Style.BRIGHT+Fore.CYAN+"Choose a letter, * to guess, or & to quit: ")
                 sys.stdout.flush()
-                try:
-                    a=getch.getch().decode("UTF-8").upper()
-                except TypeError as e:
-                    print(e)
-                    return
+                c=getch.getch()
+                a=''
+                if type(c)==type(a): # Case: Unix
+                    a=c.upper()
+                else: # Case: Windows
+                    a=c.decode("UTF-8").upper()
+
                 if re.match(r'[\w]',a):
                     if self.usedletters[ord(a)-65]:
                         print("You already used that!")
@@ -202,7 +204,10 @@ class HangmanGame:
                         sys.stdout.flush()
                     return QUIT
             else:
-                c=c.decode("utf-8").upper()
+                #c=c.decode("utf-8").upper()
+                if type(c)== bytes: # This happens on Windows
+                    c = c.decode("utf-8")
+                c=c.upper()
                 if self.set.letterInSet(c):
                     guess.answer[pos] = c
                     guess.guessed[pos] = True
